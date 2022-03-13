@@ -1,0 +1,112 @@
+.abstract {
+    text-align: justify;
+}
+
+.paperrow {
+    width: 953px;
+    margin-left: 0px;
+}
+
+.paperrow img{
+    width: 953px;
+}
+
+.paper {
+    padding-bottom: 25px;
+}
+
+.authors {
+    padding-bottom: 5px;
+}
+
+.thumbimg {
+    padding-top: 5px;
+    padding-bottom: 5px;
+}
+
+.title {
+    font-size: 24px;
+    font-weight: 500;
+}
+
+a {
+    color: #000;
+}
+
+.papers {
+    padding-top: 25px;
+}
+
+.conferences {
+    padding-top: 25px;
+}
+
+.conference {
+    padding-bottom: 25px;
+}
+
+.conference span{
+    padding-right: 5px;
+}
+
+.conference span a{
+    color: #343a40;
+}
+
+.navbar
+{
+    border-bottom:1px solid rgb(231, 231, 231);
+}
+
+.navcontainer
+{
+    width: 953px;
+}
+
+.navcontainer span
+{
+    padding-top: 10px;
+}
+
+.navcontainer span a
+{
+    color: rgba(0,0,0,.5);
+}
+
+.navcontainer span a:hover
+{
+    color: rgba(0,0,0,.7);
+    text-decoration: none;
+}
+
+.subscription
+{
+    margin-top: 50px;
+}
+
+.substitle {
+    font-size: 20px;
+    font-weight: 500;
+}
+
+.about {
+    padding-top: 25px;
+    text-align: justify;
+    max-width: 953px;
+}
+
+#about-link {
+    float: right;
+}
+
+@media (max-width: 500px) {
+    #about-link {
+        float: none;
+    }
+}
+
+@media (max-width: 600px) {
+    .navbar-brand {
+        font-size: 18px;
+    }
+}

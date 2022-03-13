@@ -1,0 +1,56 @@
+{% extends "layout.html" %}
+
+{% block title %} {{conference_name}} {% endblock %}
+
+{% block meta %}
+<meta name="description" content="A list of all {{conference}} papers ordered by rating.">
+<meta property="og:title" content="{{conference}} papers">
+<meta property="og:description" content="A list of all {{conference}} papers ordered by rating.">
+{% endblock %}
+
+{% block navbar_brand %} {{conference_name}} papers {% endblock %}
+
+{% block body %}
+<div class="container papers">
+    {% for paper in papers %}
+        <div class="paperrow paper">
+            <div class="title">
+                {{paper["ranking"]}}. <h><a href={{"https://openreview.net/pdf?id=" + paper["id"]}}>{{paper["title"]}}</a></h>
+            </div>
+            <div class="papermeta">
+                <div class="authors">
+                    <i>{{", ".join(paper["authors"])}}</i>
+                </div>
+                {% if paper.get("avg_rating2") is none %}
+                    <div class="rating">
+                        <b>rating :</b> <a href={{"https://openreview.net/forum?id=" + paper["id"]}}>{{paper["avg_rating"] | round(2)}} - {{paper["ratings_numeric"]}} - {{paper["decision"]}}</a>
+                    </div>
+                {% else %}
+                    <div class="rating">
+                        <b>rating 1 :</b> <a href={{"https://openreview.net/forum?id=" + paper["id"]}}>{{paper["avg_rating"] | round(2)}} - {{paper["ratings_numeric"]}} - {{paper["decision"]}}</a>
+                    </div>
+                    <div class="rating">
+                        <b>rating 2 :</b> <a href={{"https://openreview.net/forum?id=" + paper["id2"]}}>{{paper["avg_rating2"] | round(2)}} - {{paper["ratings_numeric2"]}} - {{paper["decision2"]}}</a>
+                    </div>
+                {% endif %}
+                {% if paper.get("code") is not none and paper.get("code")|length > 5 %}
+                    <div class="code">
+                        <b>code:</b> <a href={{paper.get("code")}}>{{paper.get("code")}}</a>
+                    </div>
+                {% endif %}
+                {% if paper.get("tldr") is not none and paper.get("tldr")|length > 5 %}
+                    <div class="tldr">
+                        <b>tl;dr:</b> {{paper.get("tldr")}}
+                    </div>
+                {% endif %}
+                <div class="thumbimg">
+                    <img src={{url_for("static", filename=conference+"/thumbs/"+paper.id+".jpg")}} loading="lazy">
+                </div>
+                <div class="abstract">
+                    {{paper["abstract"]}}
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+</div>
+{% endblock %}

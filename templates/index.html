@@ -1,0 +1,31 @@
+{% extends "layout.html" %}
+
+{% block body %}
+<div class="container conferences">
+    {% for conf_id, conf in conferences.items() %}
+        <div class="conference">
+            <h class="title">{{conf["name"]}}</h>
+            <div>
+                {% for year in conf["years"] %}
+                    <span><a href={{"/" + conf_id + year}}>{{year}}</a></span>
+                {% endfor %}
+            </div>
+        </div>
+    {% endfor %}
+</div>
+
+<div class="container subscription">
+    <h3 class="substitle">Subscribe</h3>
+    <p>Get notified when the next overview is published.</p>
+    <form action="https://gmail.us20.list-manage.com/subscribe/post?u=acb8de833508129c5c50e479e&amp;id=3d9a9272eb" method="post" id="mc-embedded-subscribe-form" name="mc-embedded-subscribe-form" class="validate form-inline" target="_blank" novalidate>
+        <div class="input-group">
+            <input type="email" value="" name="EMAIL" id="mce-EMAIL" required="required" class="form-control" placeholder="email address">
+            <div style="position: absolute; left: -5000px;" aria-hidden="true"><input type="text" name="b_acb8de833508129c5c50e479e_3d9a9272eb" tabindex="-1" value=""></div>
+            <span class="input-group-btn" style="margin-left: 10px;">
+                <button class="btn btn-secondary" type="submit">Subscribe</button>
+            </span>
+        </div>
+    </form>
+</div>
+
+{% endblock %}
