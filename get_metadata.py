@@ -58,31 +58,32 @@ def parse_args():
 
 if __name__ == "__main__":
     args = parse_args()
-
-    cfg = config.cfg[args.conference]
-    inv_submissions = cfg["inv_submissions"]
-    inv_decision_template = cfg["inv_decision_template"]
-    inv_ratings_template = cfg["inv_ratings_template"]
+    
     outpath = f"data/{args.conference}.json"
-
     client = openreview.Client(baseurl="https://api.openreview.net")
-    submissions = openreview.tools.iterget_notes(client, invitation=inv_submissions)
     data = []
-    for subm in tqdm(submissions):
-        datum = {
-            "id": subm.id,
-            "number": subm.number,
-            "forum": subm.forum,
-            "title": subm.content["title"],
-            "authors": subm.content["authors"],
-            "abstract": subm.content["abstract"],
-            "code": subm.content.get("code", None),
-            "keywords": subm.content.get("keywords", None),
-        }
-        datum["tldr"] = get_tldr(subm.content)
-        datum["ratings"] = get_ratings(client, subm.number, inv_ratings_template)
-        datum["decision"] = get_decision(client, subm.number, subm.forum, inv_decision_template)
-        data.append(datum)
+    cfgs = config.cfg[args.conference]
+    
+    for cfg in cfgs:
+        inv_submissions = cfg["inv_submissions"]
+        inv_decision_template = cfg["inv_decision_template"]
+        inv_ratings_template = cfg["inv_ratings_template"]
+        submissions = openreview.tools.iterget_notes(client, invitation=inv_submissions)
+        for subm in tqdm(submissions):
+            datum = {
+                "id": subm.id,
+                "number": subm.number,
+                "forum": subm.forum,
+                "title": subm.content["title"],
+                "authors": subm.content["authors"],
+                "abstract": subm.content["abstract"],
+                "code": subm.content.get("code", None),
+                "keywords": subm.content.get("keywords", None),
+            }
+            datum["tldr"] = get_tldr(subm.content)
+            datum["ratings"] = get_ratings(client, subm.number, inv_ratings_template)
+            datum["decision"] = get_decision(client, subm.number, subm.forum, inv_decision_template)
+            data.append(datum)
 
     with open(outpath, "w", encoding="utf-8") as ff:
         json.dump(data, ff, indent=4)
