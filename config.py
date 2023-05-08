@@ -39,6 +39,15 @@ cfg = {
 }
 
 # ICLR
+cfg["iclr2023"] = [
+    {
+        "inv_submissions": "ICLR.cc/2023/Conference/-/Blind_Submission",
+        "inv_decision_template": "ICLR.cc/2023/Conference/Paper{paper_number}/-/Decision",
+        "inv_ratings_template": "ICLR.cc/2023/Conference/Paper{paper_number}/-/Official_Review",
+        "name": "ICLR 2023",
+    },
+]
+
 cfg["iclr2022"] = [
     {
         "inv_submissions": "ICLR.cc/2022/Conference/-/Blind_Submission",
