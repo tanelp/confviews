@@ -1,6 +1,18 @@
 cfg = {}
 
 # NeurIPS
+def neurips2023_decision_parser(x):
+    return {
+        "NeurIPS 2023 poster": "Poster",
+        "NeurIPS 2023 spotlight": "Spotlight",
+        "Submitted to NeurIPS 2023": "Reject",
+        "NeurIPS 2023 oral": "Oral",
+        "NeurIPS 2023 Datasets and Benchmarks Poster": "Poster",
+        "NeurIPS 2023 Datasets and Benchmarks Spotlight": "Spotlight",
+        "Submitted to NeurIPS 2023 Datasets and Benchmarks": "Reject",
+        "NeurIPS 2023 Datasets and Benchmarks Oral": "Oral",
+    }.get(x.content["venue"]["value"])
+
 cfg = {
     "neurips2021": [
         {
@@ -35,7 +47,27 @@ cfg = {
             "inv_ratings_template": "NeurIPS.cc/2022/Track/Datasets_and_Benchmarks/Paper{paper_number}/-/Official_Review",
             "name": "NeurIPS 2022",
         },
-    ]
+    ],
+    "neurips2023": [
+        {
+            "inv_submissions": "NeurIPS.cc/2023/Conference/-/Submission",
+            "inv_decision_template": None,
+            "inv_ratings_template": "NeurIPS.cc/2023/Conference/Submission{paper_number}/-/Official_Review",
+            "name": "NeurIPS 2023",
+            "api_version": "v2",
+            "rating_parser": lambda x: x["value"].split(":")[0],
+            "decision_parser": neurips2023_decision_parser,
+        },
+        {
+            "inv_submissions": "NeurIPS.cc/2023/Track/Datasets_and_Benchmarks/-/Submission",
+            "inv_decision_template": None,
+            "inv_ratings_template": "NeurIPS.cc/2023/Track/Datasets_and_Benchmarks/Submission{paper_number}/-/Official_Review",
+            "name": "NeurIPS 2023",
+            "api_version": "v2",
+            "rating_parser": lambda x: x["value"].split(":")[0],
+            "decision_parser": neurips2023_decision_parser,
+        },
+    ],
 }
 
 # ICLR

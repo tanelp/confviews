@@ -7,9 +7,30 @@ from tqdm import tqdm
 
 import config
 
+
+def init_client(api_version):
+    if api_version == "v1":
+        return openreview.Client(baseurl="https://api.openreview.net")
+    elif api_version == "v2":
+        return openreview.api.OpenReviewClient(baseurl='https://api2.openreview.net')
+    else:
+        raise ValueError(f"Unknown API version: {api_version}")
+
+def get_submissions(client, api_version, invitation):
+    if api_version == "v1":
+        return openreview.tools.iterget_notes(client, invitation=invitation)
+    elif api_version == "v2":
+        return client.get_all_notes(invitation=invitation)
+    else:
+        raise ValueError(f"Unknown API version: {api_version}")
+
+def get_value(x): 
+    return x["value"] if isinstance(x, dict) else x
+
 def get_decision(client, paper_number, forum, invitation_template):
     invitation = invitation_template.format(paper_number=paper_number)
     decision = client.get_notes(invitation=invitation, forum=forum)
+    import pdb; pdb.set_trace()
     assert len(decision) == 1, f"decision list size: {len(decision)}"
     keys = decision[0].content.keys()
     if "consistency_experiment" in keys:
@@ -24,7 +45,7 @@ def get_decision(client, paper_number, forum, invitation_template):
     elif "recommendation" in keys:
         return decision[0].content["recommendation"]
     else:
-        raise RuntimeError("Unable to parse rating:", decision[0])
+        raise RuntimeError("Unable to parse decision:", decision[0])
     
 
 def get_ratings(client, paper_number, invitation_template, rating_parser=None):
@@ -45,10 +66,12 @@ def get_ratings(client, paper_number, invitation_template, rating_parser=None):
     return ratings
 
 def get_tldr(x):
-    keys = ["TL;DR", "one-sentence_summary"]
+    keys = ["TL;DR", "TLDR", "one-sentence_summary"]
     for k in keys:
         if k in x:
-            return x[k]
+            r = x[k]
+            r = get_value(r)
+            return r
 
 def parse_args():
     parser = argparse.ArgumentParser()
@@ -60,29 +83,35 @@ if __name__ == "__main__":
     args = parse_args()
     
     outpath = f"data/{args.conference}.json"
-    client = openreview.Client(baseurl="https://api.openreview.net")
     data = []
     cfgs = config.cfg[args.conference]
     
     for cfg in cfgs:
+        api_version = cfg.get("api_version", "v1")
         inv_submissions = cfg["inv_submissions"]
         inv_decision_template = cfg["inv_decision_template"]
         inv_ratings_template = cfg["inv_ratings_template"]
-        submissions = openreview.tools.iterget_notes(client, invitation=inv_submissions)
+        rating_parser = cfg.get("rating_parser", None)
+        decision_parser = cfg.get("decision_parser", None)
+        client = init_client(api_version)
+        submissions = get_submissions(client, api_version, inv_submissions)
         for subm in tqdm(submissions):
             datum = {
                 "id": subm.id,
                 "number": subm.number,
                 "forum": subm.forum,
-                "title": subm.content["title"],
-                "authors": subm.content["authors"],
-                "abstract": subm.content["abstract"],
-                "code": subm.content.get("code", None),
-                "keywords": subm.content.get("keywords", None),
+                "title": get_value(subm.content["title"]),
+                "authors": get_value(subm.content["authors"]),
+                "abstract": get_value(subm.content["abstract"]),
+                "code": get_value(subm.content.get("code", None)),
+                "keywords": get_value(subm.content.get("keywords", None)),
             }
             datum["tldr"] = get_tldr(subm.content)
-            datum["ratings"] = get_ratings(client, subm.number, inv_ratings_template)
-            datum["decision"] = get_decision(client, subm.number, subm.forum, inv_decision_template)
+            datum["ratings"] = get_ratings(client, subm.number, inv_ratings_template, rating_parser)
+            if decision_parser is not None:
+                datum["decision"] = decision_parser(subm)
+            else:
+                datum["decision"] = get_decision(client, subm.number, subm.forum, inv_decision_template)
             data.append(datum)
 
     with open(outpath, "w", encoding="utf-8") as ff:
