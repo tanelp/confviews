@@ -71,6 +71,24 @@ cfg = {
 }
 
 # ICLR
+def iclr_not_withdrawn(submission) -> bool:
+    venue = submission.content.get('venueid', {}).get('value', '')
+    withdrawn = 'Withdrawn_Submission' in venue
+    rejected = 'Desk_Rejected' in venue
+    return not (withdrawn or rejected)
+
+cfg["iclr2024"] = [
+    {
+        "inv_submissions": "ICLR.cc/2024/Conference/-/Submission",
+        "inv_decision_template": "ICLR.cc/2024/Conference/Submission{paper_number}/-/Decision",
+        "inv_ratings_template": "ICLR.cc/2024/Conference/Submission{paper_number}/-/Official_Review",
+        "name": "ICLR 2024",
+        "api_version": "v2",
+        "submission_filter": iclr_not_withdrawn,
+        "rating_parser": lambda x: x["value"]
+    },
+]
+
 cfg["iclr2023"] = [
     {
         "inv_submissions": "ICLR.cc/2023/Conference/-/Blind_Submission",
