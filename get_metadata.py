@@ -30,7 +30,6 @@ def get_value(x):
 def get_decision(client, paper_number, forum, invitation_template):
     invitation = invitation_template.format(paper_number=paper_number)
     decision = client.get_notes(invitation=invitation, forum=forum)
-    import pdb; pdb.set_trace()
     assert len(decision) == 1, f"decision list size: {len(decision)}"
     keys = decision[0].content.keys()
     if "consistency_experiment" in keys:
@@ -41,7 +40,11 @@ def get_decision(client, paper_number, forum, invitation_template):
         assert len(results) == 1, f"results list size: {len(results)}, {forum}, {d}"
         return results[0]
     elif "decision" in keys:
-        return decision[0].content["decision"]
+        decision_content = decision[0].content["decision"]
+        # In newer venues, the decision may be returned as a dict:
+        if isinstance(decision_content, dict) and "value" in decision_content:
+            return decision_content["value"]
+        return decision_content
     elif "recommendation" in keys:
         return decision[0].content["recommendation"]
     else:
@@ -93,15 +96,18 @@ if __name__ == "__main__":
         inv_ratings_template = cfg["inv_ratings_template"]
         rating_parser = cfg.get("rating_parser", None)
         decision_parser = cfg.get("decision_parser", None)
+        submission_filter = cfg.get("submission_filter", None)
         client = init_client(api_version)
         submissions = get_submissions(client, api_version, inv_submissions)
         for subm in tqdm(submissions):
+            if submission_filter is not None and submission_filter(subm) == False:
+                continue
             datum = {
                 "id": subm.id,
                 "number": subm.number,
                 "forum": subm.forum,
                 "title": get_value(subm.content["title"]),
-                "authors": get_value(subm.content["authors"]),
+                "authors": get_value(subm.content.get("authors", "Anonymous")),
                 "abstract": get_value(subm.content["abstract"]),
                 "code": get_value(subm.content.get("code", None)),
                 "keywords": get_value(subm.content.get("keywords", None)),
