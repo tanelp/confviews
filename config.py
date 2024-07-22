@@ -151,3 +151,30 @@ cfg["iclr2017"] = [
         "name": "ICLR 2017",
     },
 ]
+
+# ICML
+def icml2024_decision_parser(x):
+    return {
+        "ICML 2024 Poster": "Poster",
+        "ICML 2024 Spotlight": "Spotlight",
+        "ICML 2024 Oral": "Oral"
+    }.get(x.content["venue"]["value"])
+
+def icml2024_rating_key(x):
+    return {
+        "ICML 2024 Poster": ["8"],
+        "ICML 2024 Spotlight": ["9"],
+        "ICML 2024 Oral": ["10"],
+    }.get(x.content["venue"]["value"], ["7"])
+
+cfg["icml2024"] = [
+    {
+        "inv_submissions": "ICML.cc/2024/Conference/-/Submission",
+        "inv_decision_template": "ICML.cc/2024/Conference/-/Submission{paper_number}/Official_Review",
+        "approximate_ratings_from_decision": True,
+        "name": "ICML 2024",
+        "api_version": "v2",
+        "decision_parser": icml2024_decision_parser,
+        "rating_key": icml2024_rating_key
+    },
+]
