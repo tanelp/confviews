@@ -163,8 +163,8 @@ def icml2024_decision_parser(x):
 def icml2024_rating_key(x):
     return {
         "ICML 2024 Poster": ["8"],
-        "ICML 2024 Spotlight": ["10"],
-        "ICML 2024 Oral": ["9"],
+        "ICML 2024 Spotlight": ["9"],
+        "ICML 2024 Oral": ["10"],
     }.get(x.content["venue"]["value"], ["7"])
 
 cfg["icml2024"] = [
