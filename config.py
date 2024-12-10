@@ -13,6 +13,19 @@ def neurips2023_decision_parser(x):
         "NeurIPS 2023 Datasets and Benchmarks Oral": "Oral",
     }.get(x.content["venue"]["value"])
 
+def neurips2024_decision_parser(x):
+    return {
+        "NeurIPS 2024 poster": "Poster",
+        "NeurIPS 2024 spotlight": "Spotlight",
+        "Submitted to NeurIPS 2024": "Reject",
+        "NeurIPS 2024 oral": "Oral",
+        "NeurIPS 2024 Datasets and Benchmarks Poster": "Poster",
+        "NeurIPS 2024 Datasets and Benchmarks Spotlight": "Spotlight",
+        "Submitted to NeurIPS 2024 Datasets and Benchmarks": "Reject",
+        "NeurIPS 2024 Datasets and Benchmarks Oral": "Oral",
+    }.get(x.content["venue"]["value"])
+
+
 cfg = {
     "neurips2021": [
         {
@@ -66,6 +79,26 @@ cfg = {
             "api_version": "v2",
             "rating_parser": lambda x: x["value"].split(":")[0],
             "decision_parser": neurips2023_decision_parser,
+        },
+    ],
+    "neurips2024": [
+        {
+            "inv_submissions": "NeurIPS.cc/2024/Conference/-/Submission",
+            "inv_decision_template": None,
+            "inv_ratings_template": "NeurIPS.cc/2024/Conference/Submission{paper_number}/-/Official_Review",
+            "name": "NeurIPS 2024",
+            "api_version": "v2",
+            "rating_parser": lambda x: x["value"],
+            "decision_parser": neurips2024_decision_parser,
+        },
+        {
+            "inv_submissions": "NeurIPS.cc/2024/Track/Datasets_and_Benchmarks/-/Submission",
+            "inv_decision_template": None,
+            "inv_ratings_template": "NeurIPS.cc/2024/Track/Datasets_and_Benchmarks/Submission{paper_number}/-/Official_Review",
+            "name": "NeurIPS 2024",
+            "api_version": "v2",
+            "rating_parser": lambda x: x["value"],
+            "decision_parser": neurips2024_decision_parser,
         },
     ],
 }

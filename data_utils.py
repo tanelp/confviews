@@ -11,7 +11,12 @@ def preprocess(x):
     df = df[df["decision"] != "Reject"]
 
     # calc avg rating and sort by it
-    df["ratings_numeric"] = df["ratings"].apply(lambda x: [int(xx.split(":")[0]) for xx in x])
+    first_rating = df["ratings"].iloc[0][0]
+    is_rating_numeric = isinstance(first_rating, int)
+    if is_rating_numeric:
+        df["ratings_numeric"] = df["ratings"]
+    else:
+        df["ratings_numeric"] = df["ratings"].apply(lambda x: [int(xx.split(":")[0]) for xx in x])
     min_num_ratings = df["ratings_numeric"].apply(len).min()
     assert min_num_ratings > 0, f"min_num_ratings: {min_num_ratings}"
     df["avg_rating"] = df["ratings_numeric"].apply(lambda x: np.mean(x))
