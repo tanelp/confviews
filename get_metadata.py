@@ -93,7 +93,14 @@ if __name__ == "__main__":
         api_version = cfg.get("api_version", "v1")
         inv_submissions = cfg["inv_submissions"]
         inv_decision_template = cfg["inv_decision_template"]
-        inv_ratings_template = cfg["inv_ratings_template"]
+
+        inv_ratings_template = cfg.get("inv_ratings_template", None)
+        approximate_ratings = cfg.get("approximate_ratings_from_decision", False)
+        rating_key = cfg.get("rating_key", None)
+        if approximate_ratings and rating_key is None:
+            raise ValueError(f"rating_key must be present in cfg[\"{args.conference}\"] in config.py to rank articles from the decision alone")
+        if not approximate_ratings and inv_ratings_template is None:
+            raise ValueError(f"inv_ratings_template must be set in cfg[\"{args.conference}\"] in config.py to find article ratings")
         rating_parser = cfg.get("rating_parser", None)
         decision_parser = cfg.get("decision_parser", None)
         submission_filter = cfg.get("submission_filter", None)
@@ -113,7 +120,10 @@ if __name__ == "__main__":
                 "keywords": get_value(subm.content.get("keywords", None)),
             }
             datum["tldr"] = get_tldr(subm.content)
-            datum["ratings"] = get_ratings(client, subm.number, inv_ratings_template, rating_parser)
+            if approximate_ratings:
+                datum["ratings"] = rating_key(subm)
+            else:
+                datum["ratings"] = get_ratings(client, subm.number, inv_ratings_template, rating_parser)
             if decision_parser is not None:
                 datum["decision"] = decision_parser(subm)
             else:
